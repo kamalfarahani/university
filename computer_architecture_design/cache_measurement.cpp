@@ -6,7 +6,7 @@ using namespace std;
 typedef unsigned char byte;
 
 const int arr_len = 8000000;
-const int number_of_access = 1000;
+const int number_of_accesses = 1000;
 const char* msg = "Cache has less than 2^%d bytes free space \n";
 const int times_len = 13;
 
