@@ -7,7 +7,7 @@ typedef unsigned char byte;
 
 const int arr_len = 8000000;
 const int number_of_access = 1000;
-const char* msg = "Time: %d ** With step: %d \n";
+const char* msg = "Cache has less than 2^%d bytes free space \n";
 const int times_len = 13;
 
 unsigned int calculate_time(clock_t start, clock_t end);
@@ -43,11 +43,11 @@ void calculate_caches(int* times) {
     int tmp = times[0];
     int counter = 0;
     for (int i = 0; i < times_len; i++) {
-        if (times[i] / tmp >= 3) {
+        if (times[i] / tmp >= 2) {
             tmp = times[i];
             counter = i;
         }
     }
 
-    printf("Cache has less than 2^%d bytes free space \n", counter);
+    printf(msg, counter);
 }
