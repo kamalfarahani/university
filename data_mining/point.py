@@ -1,3 +1,5 @@
+from math import sqrt
+
 class Point:
 
     def __init__(self, x: float, y: float):
@@ -14,7 +16,7 @@ class Point:
         return Point(x, y)
     
     def __sub__(self, other):
-        x = self.x = other.x
+        x = self.x - other.x
         y = self.y - other.y
 
         return Point(x, y)
