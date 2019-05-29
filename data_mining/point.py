@@ -26,3 +26,6 @@ class Point:
     
     def __str__(self):
         return "({}, {})".format(self.x, self.y)
+    
+    def norm(self):
+        return sqrt(self.x**2 + self.y**2)

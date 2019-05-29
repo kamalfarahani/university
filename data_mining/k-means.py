@@ -12,6 +12,7 @@ Metric = Callable[[Point, Point], float]
 strictFilter = lambda f, l: list(filter(f,l))
 strictMap = lambda f, l: list(map(f, l))
 strictZip = lambda it1, it2: list(zip(it1, it2))
+strictZipWith = lambda f, it1, it2: strictMap(f , strictZip(it1,it2)) 
 
 
 def k_means(
@@ -20,7 +21,8 @@ def k_means(
     metric: Callable[[Point, Point], int], 
     centroids:  List[Point] = None,
     max_iter: int = 500,
-    current_iter = 0) -> List[Tuple[Point, int]]:
+    current_iter = 0,
+    tolerance = 0.00001) -> List[Tuple[Point, int]]:
 
     if centroids == None:
         centroids = points[:k]
@@ -33,12 +35,22 @@ def k_means(
             centroids.index, 
             strictMap(get_nearest_centroid, points)))
     
-    if current_iter >= max_iter:
+    new_centroids: List[Point] = calculate_new_centroids(k, points_and_clusters)
+    if current_iter >= max_iter or get_max_centroid_diffrence_norm(centroids, new_centroids) < tolerance:
         return points_and_clusters
     
-    new_centroids: List[Point] = calculate_new_centroids(k, points_and_clusters)
     return k_means(k, points, metric, new_centroids, max_iter, current_iter + 1)
 
+
+def get_max_centroid_diffrence_norm(
+    currentCents: List[Point], 
+    newCents: List[Point]) -> float:
+
+    return max(strictZipWith(
+        lambda two_cents: (two_cents[0] - two_cents[1]).norm(), 
+        currentCents, 
+        newCents))
+    
 
 def calculate_new_centroids(
     k: int, 
