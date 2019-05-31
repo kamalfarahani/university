@@ -96,6 +96,7 @@ def get_data() -> List[Point]:
     path = input('Please input the data path: ')
     first_attr = input('Please input first attribute name: ')
     second_attr = input('Please input second attribute name: ')
+    k = int(input('Enter number of clusters: '))
 
     data_frame = pd.read_csv(path)
     data = [
@@ -103,7 +104,7 @@ def get_data() -> List[Point]:
         data_frame[second_attr].values.tolist()
         ]
 
-    return data
+    return (data, k)
 
 def data_to_points(data) -> List[Point]:
     return strictMap(
@@ -127,9 +128,9 @@ def get_cmap(n, name='hsv'):
     return plt.cm.get_cmap(name, n)
 
 def main():
-    d = get_data()
+    d, k = get_data()
     points = data_to_points(d)
-    result = k_means(3, points, euclidean_distance)
+    result = k_means(k, points, euclidean_distance)
     clusters = [get_cluster_points(i, result) for i in range(3)]
     
     plot_clusters(clusters)
