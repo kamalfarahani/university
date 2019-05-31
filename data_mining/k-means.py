@@ -131,7 +131,7 @@ def main():
     d, k = get_data()
     points = data_to_points(d)
     result = k_means(k, points, euclidean_distance)
-    clusters = [get_cluster_points(i, result) for i in range(3)]
+    clusters = [get_cluster_points(i, result) for i in range(k)]
     
     plot_clusters(clusters)
 
