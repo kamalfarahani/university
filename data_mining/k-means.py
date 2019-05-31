@@ -4,7 +4,7 @@ import pandas as pd
 from functools import reduce, partial
 from math import sqrt
 from typing import List, Tuple, Callable
-from point import Point
+from point import *
 
 
 Metric = Callable[[Point, Point], float]
@@ -73,7 +73,7 @@ def get_cluster_points(
 
 
 def mean_of_cluster(cluster: List[Point]) -> Point:
-    return reduce(lambda p1, p2: p1 + p2, cluster) / len(cluster)
+    return mean_of_points(cluster)
 
 
 def find_nearest_centroid(centroids, metric, point: Point) -> Point:
@@ -82,10 +82,6 @@ def find_nearest_centroid(centroids, metric, point: Point) -> Point:
         strictMap(get_distance_from_point, centroids))
 
     return centroids[index]
-
-
-def euclidean_distance(p1: Point, p2: Point) -> float:
-    return (p1.x - p2.x)**2 + (p1.y - p2.y)**2
 
 
 def minIndex(l):
