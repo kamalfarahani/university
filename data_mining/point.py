@@ -1,4 +1,6 @@
 from math import sqrt
+from typing import List
+from functools import reduce
 
 class Point:
 
@@ -29,3 +31,15 @@ class Point:
     
     def norm(self):
         return sqrt(self.x**2 + self.y**2)
+
+
+def euclidean_distance(p1: Point, p2: Point) -> float:
+    return (p1.x - p2.x)**2 + (p1.y - p2.y)**2
+
+
+def manhattan_distance(p1: Point, p2: Point) -> float:
+    return abs(p1.x - p2.x) + abs(p1.y - p2.y)
+
+
+def mean_of_points(points: List[Point]) -> Point:
+    return reduce(lambda p1, p2: p1 + p2, points) / len(points)
