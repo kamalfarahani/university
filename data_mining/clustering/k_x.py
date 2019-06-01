@@ -45,13 +45,15 @@ def k_x_clustring(
         k, points, metric, cent_calc_method, new_centroids, max_iter, current_iter + 1, tolerance)
 
 
-def k_means(k, points, centroids, max_iter=500, tolerance=0.00001):
+def k_means(k, points, max_iter=500, tolerance=0.00001):
     return k_x_clustring(
         k, points, euclidean_distance, mean_of_points, max_iter=max_iter, tolerance=tolerance)
 
-def k_medians(k, points, centroids, max_iter=500, tolerance=0.00001):
+
+def k_medians(k, points, max_iter=500, tolerance=0.00001):
     return k_x_clustring(
         k, points, manhattan_distance, median_of_points, max_iter=max_iter, tolerance=tolerance)
+
 
 def get_max_centroid_diffrence_norm(
     currentCents: List[Point], 
@@ -144,7 +146,7 @@ def main():
         'k-medians': k_medians
     }
 
-    result = method_to_func[method](k, points, euclidean_distance)
+    result = method_to_func[method](k, points)
     clusters = [get_cluster_points(i, result) for i in range(k)]
     
     plot_clusters(clusters)
