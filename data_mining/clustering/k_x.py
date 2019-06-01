@@ -4,7 +4,7 @@ import pandas as pd
 from functools import reduce, partial
 from math import sqrt
 from typing import List, Tuple, Callable
-from point import Point, euclidean_distance, manhattan_distance, mean_of_points, median_of_points
+from point import Point, euclidean_distance, manhattan_distance, mean_of_points, median_of_points, medoid_of_points
 
 
 Metric = Callable[[Point, Point], float]
@@ -54,6 +54,10 @@ def k_medians(k, points, max_iter=500, tolerance=0.00001):
     return k_x_clustring(
         k, points, manhattan_distance, median_of_points, max_iter=max_iter, tolerance=tolerance)
 
+
+def k_medoids(k, points, max_iter=500, tolerance=0.00001):
+    return k_x_clustring(
+        k, points, euclidean_distance, medoid_of_points, max_iter=max_iter, tolerance=tolerance)
 
 def get_max_centroid_diffrence_norm(
     currentCents: List[Point], 
@@ -143,7 +147,8 @@ def main():
     method = input('Enter clustring method: ')
     method_to_func = {
         'k-means': k_means,
-        'k-medians': k_medians
+        'k-medians': k_medians,
+        'k-medoids': k_medoids
     }
 
     result = method_to_func[method](k, points)

@@ -1,7 +1,8 @@
 from math import sqrt
 from typing import List
-from functools import reduce
+from functools import reduce, partial
 from numpy import median
+from operator import add
 
 class Point:
 
@@ -50,3 +51,22 @@ def median_of_points(points: List[Point]) -> Point:
     ys = [p.y for p in points]
 
     return Point(median(xs), median(ys))
+
+
+def medoid_of_points(points: List[Point]) -> Point:
+    cost = partial(medoid_cost, points)
+    best_medoid_index = min_index(list(map(cost, points)))
+    
+    return points[best_medoid_index] 
+
+
+def medoid_cost(points: List[Point], medoid: Point) -> float:
+    return reduce(
+        add, 
+        map(
+            lambda p: euclidean_distance(p, medoid),
+            points))
+
+
+def min_index(l):
+    return l.index(min(l))
