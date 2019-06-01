@@ -1,6 +1,7 @@
 from math import sqrt
 from typing import List
 from functools import reduce
+from numpy import median
 
 class Point:
 
@@ -43,3 +44,9 @@ def manhattan_distance(p1: Point, p2: Point) -> float:
 
 def mean_of_points(points: List[Point]) -> Point:
     return reduce(lambda p1, p2: p1 + p2, points) / len(points)
+
+def median_of_points(points: List[Point]) -> Point:
+    xs = [p.x for p in points]
+    ys = [p.y for p in points]
+
+    return Point(median(xs), median(ys))
