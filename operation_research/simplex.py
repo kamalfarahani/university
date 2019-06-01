@@ -1,18 +1,25 @@
 from typing import List
-from sympy import Number
+from sympy import Number, symbols
 from functools import reduce
 
-def solve_simplex_table(table):
-    print(matrix_to_str(table))
+def solve_simplex_table(table, basic_vars):
+    print(matrix_to_str(table), '\n')
+    print('basic_vars: {}'.format(basic_vars))
     print('_____________\n')
-    
-    if min(table[0][:-1]) >= 0 :
-        return table
+
+    if min(table[0][:-1]) >= 0:
+        basic_vars_columns = list(map(lambda x: sym_to_number(x[0]), basic_vars))
+        for index, var in enumerate(table[0][:-1]):
+            if (index not in basic_vars_columns) and var == 0:
+                print('We have another answer!')
+
+        return table, basic_vars
     
     rowIndex, columnIndex = find_pivot_item(table)
     new_table = pivot_on_pivot_item(table, rowIndex, columnIndex)
+    new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
 
-    return solve_simplex_table(new_table)
+    return solve_simplex_table(new_table, new_basic_vars)
 
 
 def pivot_on_pivot_item(table, rowIndex, columnIndex):
@@ -35,6 +42,12 @@ def find_pivot_item(table):
     rowIndex = find_smallest_non_negative_item_index(list(theta)) + 1
 
     return (rowIndex, columnIndex)
+
+
+def make_basic_vars(basic_vars, rowIndex, columnIndex):
+    return [
+        item if item[1] != rowIndex else (make_x_sym(columnIndex), item[1]) for item in basic_vars
+    ]
 
 
 def find_smallest_item_index(l):
@@ -68,8 +81,14 @@ def find_smallest_non_negative_item_index(l):
 def make_simplex_table(z, a, b):
     first_row = [-i for i in z] + make_zero_list(len(a)) + [0]
     other_rows = [a[i] + [b[i]] for i in range(len(a))]
+    
+    non_basic_vars_size = len(z)
+    all_vars_size = len(first_row) - 1
+    basic_vars = [
+        (make_x_sym(v), v - non_basic_vars_size) for v in range(non_basic_vars_size, all_vars_size)
+    ]
 
-    return [first_row] + other_rows
+    return ([first_row] + other_rows, basic_vars)
 
 
 def add_slack_vars(a):
@@ -94,6 +113,14 @@ def rowAddition(addedRow, addingRow, multiplier):
     return list(map(
         lambda elm: elm[0] + multiplier * elm[1],
         list(zip(addedRow, addingRow))))
+
+
+def make_x_sym(index):
+    return symbols('x' + str(index))
+
+
+def sym_to_number(sym):
+    return int(str(sym)[1:])
 
 
 def list_to_symbols(l):
@@ -147,12 +174,11 @@ def main():
     print('Enter b matrix: ')
     b = get_input(const_num, 1)
     
-    table = make_simplex_table(z, add_slack_vars(a), b)
+    table, basic_vars = make_simplex_table(z, add_slack_vars(a), b)
     print(matrix_to_str(table))
     print('_________________\n')
     
-    result = solve_simplex_table(table)
-    print(matrix_to_str(result))
+    solve_simplex_table(table, basic_vars)
 
 
 if __name__ == "__main__":
