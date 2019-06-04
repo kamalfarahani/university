@@ -14,7 +14,7 @@ CentroidCalcMethod = Callable[[List[Point]], Point]
 strictFilter = lambda f, l: list(filter(f,l))
 strictMap = lambda f, l: list(map(f, l))
 strictZip = lambda it1, it2: list(zip(it1, it2))
-strictZipWith = lambda f, it1, it2: strictMap(f , strictZip(it1,it2)) 
+strictZipWith = lambda f, it1, it2: [f(a, b) for (a, b) in strictZip(it1, it2)]
 
 
 def k_x_clustring(
@@ -65,7 +65,7 @@ def get_max_centroid_diffrence_norm(
     newCents: List[Point]) -> float:
 
     return max(strictZipWith(
-        lambda two_cents: (two_cents[0] - two_cents[1]).norm(), 
+        lambda cent1, cent2: (cent1 - cent2).norm(), 
         currentCents, 
         newCents))
     
