@@ -4,6 +4,7 @@ import pandas as pd
 from functools import reduce, partial
 from math import sqrt
 from typing import List, Tuple, Callable
+from utils import min_index, get_cmap
 from point import Point, euclidean_distance, manhattan_distance, mean_of_points, median_of_points, medoid_of_points
 
 
@@ -82,6 +83,7 @@ def calculate_new_centroids(
     
     return new_centroids
 
+
 def get_cluster_points(
     cluster_number: int,
     points_and_clusters: List[Tuple[Point, int]]) -> List[Point]:
@@ -96,14 +98,10 @@ def mean_of_cluster(cluster: List[Point]) -> Point:
 
 def find_nearest_centroid(centroids, metric, point: Point) -> Point:
     get_distance_from_point = partial(metric, point)
-    index = minIndex(
+    index = min_index(
         strictMap(get_distance_from_point, centroids))
 
     return centroids[index]
-
-
-def minIndex(l):
-    return l.index(min(l))
 
 
 def get_data() -> List[Point]:
@@ -116,7 +114,7 @@ def get_data() -> List[Point]:
     data = [
         data_frame[first_attr].values.tolist(), 
         data_frame[second_attr].values.tolist()
-        ]
+	]
 
     return (data, k)
 
@@ -135,11 +133,6 @@ def plot_clusters(clusters: List[List[Point]]):
     
     plt.show()
 
-
-def get_cmap(n, name='hsv'):
-    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
-    RGB color; the keyword argument name must be a standard mpl colormap name.'''
-    return plt.cm.get_cmap(name, n)
 
 def main():
     d, k = get_data()

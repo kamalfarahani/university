@@ -3,6 +3,7 @@ from typing import List
 from functools import reduce, partial
 from numpy import median
 from operator import add
+from utils import min_index
 
 class Point:
 
@@ -66,7 +67,3 @@ def medoid_cost(points: List[Point], medoid: Point) -> float:
         map(
             lambda p: euclidean_distance(p, medoid),
             points))
-
-
-def min_index(l):
-    return l.index(min(l))
