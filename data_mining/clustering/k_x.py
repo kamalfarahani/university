@@ -25,7 +25,7 @@ def k_x_clustring(
     centroids:  List[Point] = None,
     max_iter: int = 500,
     current_iter = 0,
-    tolerance = 0.00001) -> List[Tuple[Point, int]]:
+    tolerance = 0.00001) -> Tuple[List[Tuple[Point, int]], List[Point]]:
 
     if centroids == None:
         centroids = points[:k]
@@ -40,7 +40,7 @@ def k_x_clustring(
     
     new_centroids: List[Point] = calculate_new_centroids(cent_calc_method, k, points_and_clusters)
     if current_iter >= max_iter or get_max_centroid_diffrence_norm(centroids, new_centroids) < tolerance:
-        return points_and_clusters
+        return (points_and_clusters, centroids)
     
     return k_x_clustring(
         k, points, metric, cent_calc_method, new_centroids, max_iter, current_iter + 1, tolerance)
@@ -124,12 +124,16 @@ def data_to_points(data) -> List[Point]:
         strictZip(data[0], data[1]))
 
 
-def plot_clusters(clusters: List[List[Point]]):
+def plot_clusters(clusters: List[List[Point]], cents: List[Point]):
     cmap = get_cmap(10)
     for cluster_number, cluster in enumerate(clusters) :
         for point in cluster:
             plt.scatter(
-                x = point.x, y = point.y, c = cmap(cluster_number)) 
+                x = point.x, y = point.y, c = cmap(cluster_number))
+        
+        current_cent = cents[cluster_number]
+        plt.scatter(
+                x = current_cent.x, y = current_cent.y, c = 'black')
     
     plt.show()
 
@@ -144,10 +148,10 @@ def main():
         'k-medoids': k_medoids
     }
 
-    result = method_to_func[method](k, points)
+    result, cents = method_to_func[method](k, points)
     clusters = [get_cluster_points(i, result) for i in range(k)]
     
-    plot_clusters(clusters)
+    plot_clusters(clusters, cents)
 
 
 if __name__ == '__main__':
