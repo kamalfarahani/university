@@ -2,16 +2,15 @@ from typing import List
 from sympy import Number, symbols
 from functools import reduce
 
+
 def solve_simplex_table(table, basic_vars):
     print(matrix_to_str(table), '\n')
     print('basic_vars: {}'.format(basic_vars))
     print('_____________\n')
 
     if min(table[0][:-1]) >= 0:
-        basic_vars_columns = list(map(lambda x: sym_to_number(x[0]), basic_vars))
-        for index, var in enumerate(table[0][:-1]):
-            if (index not in basic_vars_columns) and var == 0:
-                print('We have another answer!')
+        if has_other_answer(table[0], basic_vars):
+            print('We have another answer!')
 
         return table, basic_vars
     
@@ -20,6 +19,17 @@ def solve_simplex_table(table, basic_vars):
     new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
 
     return solve_simplex_table(new_table, new_basic_vars)
+
+
+def has_other_answer(first_row, basic_vars):
+    basic_vars_columns = list(map(
+        lambda x: sym_to_number(x[0]), basic_vars))
+    
+    for index, var in enumerate(first_row[:-1]):
+        if (index not in basic_vars_columns) and var == 0:
+            return True
+
+    return False
 
 
 def pivot_on_pivot_item(table, rowIndex, columnIndex):
@@ -61,22 +71,14 @@ def find_smallest_item_index(l):
 
 
 def find_smallest_non_negative_item_index(l):
-    index = 0
+    result_and_index = min(
+        filter(
+            lambda i: (i[0] is not None) and i[0] >= 0,
+            zip(l, range(len(l)))),
+            key = lambda i: i[0])
+    
+    return result_and_index[1]
 
-    for i in range(len(l)) :
-        if l[i] == None:
-            continue
-
-        if l[index] == None :
-            index = i
-
-        if l[index] < 0 and l[i] > 0:
-            index = i
-
-        if l[i] > 0 and l[i] < l[index] :
-            index = i
-
-    return index
 
 def make_simplex_table(z, a, b):
     first_row = [-i for i in z] + make_zero_list(len(a)) + [0]
