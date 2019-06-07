@@ -4,9 +4,7 @@ from functools import reduce
 
 
 def solve_simplex_table(table, basic_vars):
-    print(matrix_to_str(table), '\n')
-    print('basic_vars: {}'.format(basic_vars))
-    print('_____________\n')
+    print_table(table, basic_vars)
 
     if min(table[0][:-1]) >= 0:
         if has_other_answer(table[0], basic_vars):
@@ -15,10 +13,28 @@ def solve_simplex_table(table, basic_vars):
         return table, basic_vars
     
     rowIndex, columnIndex = find_pivot_item(table)
+    if has_no_answer(table, columnIndex):
+        raise Exception('Problem has no unique answer!')
+
     new_table = pivot_on_pivot_item(table, rowIndex, columnIndex)
     new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
 
     return solve_simplex_table(new_table, new_basic_vars)
+
+
+def print_table(table, basic_vars):
+    print(matrix_to_str(table), '\n')
+    print('basic_vars: {}'.format(basic_vars))
+    print('_____________\n')
+
+
+def has_no_answer(table, column_index):
+    column_items = [row[column_index] for row in table]
+    positive_items = list(filter(
+        lambda x: x > 0,
+        column_items))
+    
+    return len(positive_items) == 0
 
 
 def has_other_answer(first_row, basic_vars):
@@ -180,7 +196,10 @@ def main():
     print(matrix_to_str(table))
     print('_________________\n')
     
-    solve_simplex_table(table, basic_vars)
+    try:
+        solve_simplex_table(table, basic_vars)
+    except:
+        print('Problem has no unique answer!')
 
 
 if __name__ == "__main__":
