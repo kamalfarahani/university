@@ -1,7 +1,10 @@
+import json
 from typing import List
 from sympy import Number, symbols
 from functools import reduce
 
+
+FILE_PATH = './input.json'
 
 def solve_simplex_table(table, basic_vars):
     print_table(table, basic_vars)
@@ -61,9 +64,10 @@ def pivot_on_pivot_item(table, rowIndex, columnIndex):
 def find_pivot_item(table):
     columnIndex = find_smallest_item_index(table[0][:-1])
     
-    theta = map(lambda x: x[0] / x[1] if x[1] != 0 else None,
-        zip([items[-1] for items in table[1:]],
-            [items[columnIndex] for items in table[1:]]))
+    theta = map(lambda x: safe_div(x[0], x[1]) if x is not None else None,
+        map(lambda x: None if x[0] == 0 and x[1] < 0 else x,
+            zip([items[-1] for items in table[1:]],
+                [items[columnIndex] for items in table[1:]])))
 
     rowIndex = find_smallest_non_negative_item_index(list(theta)) + 1
 
@@ -97,16 +101,43 @@ def find_smallest_non_negative_item_index(l):
 
 
 def make_simplex_table(z, a, b):
-    first_row = [-i for i in z] + make_zero_list(len(a)) + [0]
+    first_row = [-i for i in z] + make_zero_list(len(a[0]) - len(z)) + [0]
     other_rows = [a[i] + [b[i]] for i in range(len(a))]
     
-    non_basic_vars_size = len(z)
-    all_vars_size = len(first_row) - 1
-    basic_vars = [
-        (make_x_sym(v), v - non_basic_vars_size) for v in range(non_basic_vars_size, all_vars_size)
-    ]
+    basic_vars = find_basic_vars(a)
 
     return ([first_row] + other_rows, basic_vars)
+
+
+def find_basic_vars(a):
+    size = len(a)
+    id_mat = make_identity_matrix(size)
+
+    basic_vars = []
+    for i in range(size):
+        col_index = find_column_index(get_column(i, id_mat), a)
+        basic_var = (make_x_sym(col_index), i)
+        basic_vars.append(basic_var)
+
+    return basic_vars
+
+
+def make_identity_matrix(size):
+    return [
+        [0 if j != i else 1 for j in range(size)] for i in range(size)
+    ]
+
+
+def get_columns(mat):
+    return [get_column(i, mat) for i in range(len(mat[0]))]
+
+
+def get_column(index, mat):
+    return [row[index] for row in mat]
+
+
+def find_column_index(column, mat):
+    return get_columns(mat).index(column)
 
 
 def add_slack_vars(a):
@@ -178,21 +209,39 @@ def get_input_matrix(n, m):
     return mat
 
 
-def main():
-    vars_num = int(input('Enter number of variables : '))
-    const_num = int(input('Enter number of constraints : '))
-    get_input = lambda n, m: to_symbols(get_input_matrix(n, m))
+def safe_div(x1, x2):
+    if x1 is None or x2 is None:
+        return None
+    
+    if x2 == 0:
+        return None
+    
+    return x1 / x2
 
-    print('Enter z matrix: ')
-    z = get_input(1, vars_num)
+def read_from_file():
+    file = open(FILE_PATH)
+    file_str = reduce(
+        lambda acc, line: acc + line,
+        file.readlines())
     
-    print('Enter A matrix: ')
-    a = get_input(const_num, vars_num)
+    file.close()
+
+    data = json.loads(file_str)
+    z = to_symbols(data['z'])
+    a = to_symbols(data['a'])
+    b = to_symbols(data['b'])
+    kind = data['kind']
+
+    return (z, a, b, kind)
+ 
+
+def main():
+    z, a, b, kind = read_from_file()
+
+    if kind != '=':
+        a = add_slack_vars(a)
     
-    print('Enter b matrix: ')
-    b = get_input(const_num, 1)
-    
-    table, basic_vars = make_simplex_table(z, add_slack_vars(a), b)
+    table, basic_vars = make_simplex_table(z, a, b)
     print(matrix_to_str(table))
     print('_________________\n')
     
