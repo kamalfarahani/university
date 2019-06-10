@@ -3,6 +3,13 @@ from typing import List
 from sympy import Number, symbols
 from functools import reduce
 
+MESSAGES = {
+    'no_unique_ans': 'Problem has no unique answer!',
+    'has_other_ans': 'We have another answer!',
+    'basic_vars': 'Basic vars are {}',
+    'enter_element': 'Please enter element {} {} :',
+    'line': '___________________\n'
+}
 
 FILE_PATH = './input.json'
 
@@ -11,13 +18,13 @@ def solve_simplex_table(table, basic_vars):
 
     if min(table[0][:-1]) >= 0:
         if has_other_answer(table[0], basic_vars):
-            print('We have another answer!')
+            print(MESSAGES['has_other_ans'])
 
         return table, basic_vars
     
     rowIndex, columnIndex = find_pivot_item(table)
     if has_no_answer(table, columnIndex):
-        raise Exception('Problem has no unique answer!')
+        raise Exception(MESSAGES['no_unique_ans'])
 
     new_table = pivot_on_pivot_item(table, rowIndex, columnIndex)
     new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
@@ -27,8 +34,8 @@ def solve_simplex_table(table, basic_vars):
 
 def print_table(table, basic_vars):
     print(matrix_to_str(table), '\n')
-    print('basic_vars: {}'.format(basic_vars))
-    print('_____________\n')
+    print(MESSAGES['basic_vars'].format(basic_vars))
+    print(MESSAGES['line'])
 
 
 def has_no_answer(table, column_index):
@@ -198,7 +205,7 @@ def get_input_matrix(n, m):
     for i in range(n):
         for j in range(m):
             mat[i][j] = input(
-                'Please enter element {} {} :'.format(i + 1, j + 1))
+                MESSAGES['enter_element'].format(i + 1, j + 1))
     
     if n == 1 :
         mat = mat[0]
@@ -243,12 +250,12 @@ def main():
     
     table, basic_vars = make_simplex_table(z, a, b)
     print(matrix_to_str(table))
-    print('_________________\n')
+    print(MESSAGES['line'])
     
     try:
         solve_simplex_table(table, basic_vars)
     except:
-        print('Problem has no unique answer!')
+        print(MESSAGES['no_unique_ans'])
 
 
 if __name__ == "__main__":
