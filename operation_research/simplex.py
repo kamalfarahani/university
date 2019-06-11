@@ -84,7 +84,7 @@ def find_pivot_item(table):
     columnIndex = find_smallest_item_index(table[0][:-1])
     
     theta = map(lambda x: safe_div(x[0], x[1]) if x is not None else None,
-        map(lambda x: None if x[0] == 0 and x[1] < 0 else x,
+        map(lambda x: None if x[1] < 0 else x,
             zip([items[-1] for items in table[1:]],
                 [items[columnIndex] for items in table[1:]])))
 
