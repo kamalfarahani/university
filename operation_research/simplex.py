@@ -11,10 +11,15 @@ MESSAGES = {
     'line': '___________________\n'
 }
 
+KINDS = {
+    'min': 'min',
+    'max': 'max'
+}
+
 FILE_PATH = './input.json'
 
-def solve_simplex_table(table, basic_vars):
-    print_table(table, basic_vars)
+def solve_simplex_table(table, basic_vars, kind):
+    print_table(table, basic_vars, kind)
 
     if min(table[0][:-1]) >= 0:
         if has_other_answer(table[0], basic_vars):
@@ -29,11 +34,18 @@ def solve_simplex_table(table, basic_vars):
     new_table = pivot_on_pivot_item(table, rowIndex, columnIndex)
     new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
 
-    return solve_simplex_table(new_table, new_basic_vars)
+    return solve_simplex_table(new_table, new_basic_vars, kind)
 
 
-def print_table(table, basic_vars):
-    print(matrix_to_str(table), '\n')
+def print_table(table, basic_vars, kind):
+    def make_first_row(r):
+        if kind == KINDS['min']:
+            return list(map(lambda x: -x, r))
+        
+        return r
+    
+    print_table = [make_first_row(table[0])] + table[1:] 
+    print(matrix_to_str(print_table), '\n')
     print(MESSAGES['basic_vars'].format(basic_vars))
     print(MESSAGES['line'])
 
@@ -107,8 +119,9 @@ def find_smallest_non_negative_item_index(l):
     return result_and_index[1]
 
 
-def make_simplex_table(z, a, b):
-    first_row = [-i for i in z] + make_zero_list(len(a[0]) - len(z)) + [0]
+def make_simplex_table(z, a, b, kind):
+    f = lambda x: -x if kind == KINDS['max'] else x
+    first_row = [f(i) for i in z] + make_zero_list(len(a[0]) - len(z)) + [0]
     other_rows = [a[i] + [b[i]] for i in range(len(a))]
     
     basic_vars = find_basic_vars(a)
@@ -238,22 +251,19 @@ def read_from_file():
     a = to_symbols(data['a'])
     b = to_symbols(data['b'])
     kind = data['kind']
+    form = data['form']
 
-    return (z, a, b, kind)
+    return (z, a, b, kind, form)
  
 
 def main():
-    z, a, b, kind = read_from_file()
-
-    if kind != '=':
+    z, a, b, kind, form = read_from_file()
+    if form != '=':
         a = add_slack_vars(a)
     
-    table, basic_vars = make_simplex_table(z, a, b)
-    print(matrix_to_str(table))
-    print(MESSAGES['line'])
-    
+    table, basic_vars = make_simplex_table(z, a, b, kind)
     try:
-        solve_simplex_table(table, basic_vars)
+        solve_simplex_table(table, basic_vars, kind)
     except:
         print(MESSAGES['no_unique_ans'])
 
