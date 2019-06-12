@@ -5,6 +5,7 @@ from functools import reduce
 
 MESSAGES = {
     'no_unique_ans': 'Problem has no unique answer!',
+    'infinite_loop': 'We are in infinite loop!',
     'has_other_ans': 'We have another answer!',
     'basic_vars': 'Basic vars are {}',
     'enter_element': 'Please enter element {} {} :',
@@ -18,8 +19,9 @@ KINDS = {
 
 FILE_PATH = './input.json'
 
-def solve_simplex_table(table, basic_vars, kind):
+def solve_simplex_table(table, basic_vars, kind, table_set=set()):
     print_table(table, basic_vars, kind)
+    table_set.add(matrix_to_str(table))
 
     if min(table[0][:-1]) >= 0:
         if has_other_answer(table[0], basic_vars):
@@ -34,7 +36,11 @@ def solve_simplex_table(table, basic_vars, kind):
     new_table = pivot_on_pivot_item(table, rowIndex, columnIndex)
     new_basic_vars = make_basic_vars(basic_vars, rowIndex -1 , columnIndex)
 
-    return solve_simplex_table(new_table, new_basic_vars, kind)
+    if matrix_to_str(new_table) in table_set:
+        raise Exception(MESSAGES['infinite_loop'])
+    table_set.add(matrix_to_str(table))
+
+    return solve_simplex_table(new_table, new_basic_vars, kind, table_set)
 
 
 def print_table(table, basic_vars, kind):
@@ -264,8 +270,8 @@ def main():
     table, basic_vars = make_simplex_table(z, a, b, kind)
     try:
         solve_simplex_table(table, basic_vars, kind)
-    except:
-        print(MESSAGES['no_unique_ans'])
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
